@@ -21,7 +21,7 @@ const fetchMyIP = function(callback) {
       return;
     }
     const ip = JSON.parse(body).ip;
-    return ip;
+    callback(null, ip);
   });
 };
 
@@ -66,11 +66,33 @@ const fetchISSFlyOverTimes = function(coords, callback) {
       return;
     }
     let passes = JSON.parse(body).response;
-    passes = JSON.stringify(passes);
+    // passes = JSON.stringify(passes);
     callback(null, passes);
   });
 };
 
+const nextISSTimesForMyLocation = function(callback) {
+  fetchMyIP((error, ip) => {
+    if (error) {
+      console.log("It didn't work!" , error);
+      return;
+    }
+    fetchCoordsByIP(ip, (error, coordinates) => {
+      if (error) {
+        console.log("It didn't work!" , error);
+        return;
+      }
+      fetchISSFlyOverTimes(coordinates, (error, flyOver) => {
+        if (error) {
+          console.log("It didn't work!" , error);
+          return;
+        }
+        callback(null, flyOver);
+      });
+    });
+  });
+};
 module.exports = fetchMyIP;
 module.exports = fetchCoordsByIP;
 module.exports = fetchISSFlyOverTimes;
+module.exports = nextISSTimesForMyLocation;
